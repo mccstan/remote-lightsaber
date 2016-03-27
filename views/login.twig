@@ -1,0 +1,47 @@
+<!-- herité du template layout.twig -->
+{% extends 'layout.twig' %}
+<!-- Invoquer le block titre (dans le template ) afin de le personaliser ! -->
+{% block titre %} {{ parent() }}connexion - {% endblock %}
+
+<!-- Invoquer le block body (dans le template) pour y mettre le corps de la page-->
+{% block body %}
+    
+    <section id="login-form" class="row" >
+                    <!-- image de gauche au niveau de la page de connexion-->
+                    <div class="col-md-6" id="manette">
+                        <img src="public/images/fond1.png" alt="fond1">
+                    </div>
+                    
+                    <!-- Formulaire de connexion -->
+                    <form id="form" class="form-inline col-md-6" id="form-connexion" action="/login" method="post">
+                            <!-- token cscrf -->
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                            <span id="connexion-label">Connexion</span>
+                            <!-- Saisie de l'identifiant -->
+                            <div class="form-group row">
+                              <div class="col-md-12">
+                              <input id="identifiant" name="identifiant" placeholder="identifiant" class="form-control input-md" type="text" required >
+                              </div>
+                            </div>
+
+                             <!-- Boutton de validation -->
+                            <div id="div-submit" class="form-group row">
+                              <div class="col-md-12" style="text-align: rig">
+                                <button type="submit" id="valider" name="Connexion" class="btn btn-primary"><span class="glyphicon glyphicon-user"></span> Connexion</button>
+                              </div>
+                            </div>
+                            <!-- Message à faire apparaitre en cas d'erreur de saisie !  -->
+                            <div id="alert" class="alert alert-block alert-danger">
+                              <h4>Erreur !</h4>
+                              <!-- Inclure le message qu'il faut ici en fonction de l'erreur ! cest fait par jquery -->
+                            <p></p>
+                            </div>
+                    </form>
+                
+            </section>
+    
+{% endblock %}
+
+{% block script %}
+    <script src="/public/js/lightsaberscript.js"></script>
+{% endblock %}

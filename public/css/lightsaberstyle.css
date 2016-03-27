@@ -1,0 +1,124 @@
+.marge-haut-null{
+    margin-top:0px;
+}
+.padd-haut-null{
+     padding-top:0px;
+}
+.affichage-ligne-block{
+    display : inline-block;
+}
+.alignement-centre{
+    text-align : center;
+}
+.panel-body span{
+    margin-right: 5px;
+}
+
+header{
+    height: 90px;
+}
+header img {
+    height: 80px;
+}
+
+#pied-page{
+    border-top : 1px solid rgb(227,227,227); 
+    padding-top: 10px;
+}
+
+#form-connexion{
+    margin-top: 50px; margin-bottom: 20px;
+}
+
+#barre-utilisateur{
+    border-bottom : solid 2px rgb(227,227,227); 
+    margin-bottom: 30px; 
+    text-align: right;
+}
+
+#barre-utilisateur label{
+    color : rgb(150,150,150);
+}
+#barre-utilisateur a{
+    margin-left: 10px;
+}
+
+#rooms-list-section{
+    margin-top: 10px;
+}
+
+#rooms-div{
+    margin-left: 2%; 
+    margin-top: 15px;
+}
+#panel-room{
+    display : inline-block;
+    min-width :24%;
+}
+
+#alert{
+    display:none;
+}
+#room-form{
+    margin-top : 10px;
+}
+#connexion-label{
+    font-size: 25px; 
+    display: block;
+    border-bottom: 1px solid rgb(127,127,127);
+    margin-bottom: 15px;
+}
+
+/* Large desktop */
+@media (min-width: 1200px) { 
+    #panel-room{
+        display : inline-block;
+        min-width :24%;
+    }
+}
+ 
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) { 
+    #panel-room{
+        display : inline-block;
+        min-width :24%;
+    }
+}
+
+
+/*  Media Queries pour rendre l'interface responsive*/
+ 
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) { 
+    #panel-room{
+        display : inline-block;
+        min-width :50%;
+    }
+}
+ 
+/* Landscape phones and down */
+@media (max-width: 480px) {  
+    #panel-room{
+        display : inline-block;
+        min-width :100%;
+    }
+}
+
+/* Background du site*/
+body{
+    background:url(/public/images/back.jpg) no-repeat center top scroll;
+    background-size: 100% auto;
+    margin-top : 10px;
+    
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";       /* IE 8 */
+    filter: alpha(opacity=90);  /* IE 5-7 */
+    -moz-opacity: 0.9;          /* Netscape */
+    -khtml-opacity: 0.9;        /* Safari 1.x */
+    opacity: 0.9;               /* Good browsers */
+}
+
+.container-color {
+  background-color: #000;
+  padding: 0 90px;
+}
+

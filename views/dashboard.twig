@@ -1,0 +1,144 @@
+<!-- heriter du template layout.twig -->
+{% extends 'layout.twig' %}
+<!-- Invocation du block titre dans layout.twig afin de personnaliser le titre ! -->
+{% block titre %} {{ parent() }}Accueil - {% endblock %}
+
+<!-- invocation du block body dans layout.twig afin de definir le corps de cette page -->
+{% block body %}
+    <section id="rooms-list-section" class="row">
+        <div id="barre-utilisateur" class="col-md-12"> 
+            <label>Utilisateur : </label>
+            <!-- Accéder au username donné par le server en mettant  -->
+            <span>{{user.username}}</span>
+            <a href="/logout" title="Déconnexion"><span class="glyphicon glyphicon-off"></span></a>
+        </div>
+        <script>
+            //var total = '{{totalPages}}';
+        </script>
+        <div class="col-md-12">  
+            <!-- utilisaton du composant tabbable de bootstrap -->
+            <div class="tabbable"> 
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#tab1" data-toggle="tab">Rooms</a></li>
+                  <li><a href="#tab2" data-toggle="tab">Nouvelle room</a></li>
+                </ul>
+                <div id="rooms-list" class="tab-content">
+                    <div class="tab-pane active" id="tab1">
+                        <div id="rooms-div">
+                      
+                        {% for room in rooms %}
+                        
+                           <!-- composant panel de bootstrap -->
+                            <div id="panel-room" class="panel {% if room.active==true %}panel-success {% else %}panel-primary{% endif %} roms-inline-block" > 
+      
+                               <div class="panel-heading text-center text-uppercase" > {{room.name}} </div>
+                               <div class="panel-body">    
+                                   <p>
+                                       <span class="glyphicon glyphicon-phone" title="controleur"></span>
+                                       <label>{{room.controller}}</label><br> 
+                                       
+                                       <span class="glyphicon glyphicon-cog" title="Créateur de la room"></span>
+                                       <label>{{room.creator}}</label><br>
+                                       
+                                       <span class="glyphicon glyphicon-user"   title="controleur"></span>
+                                       <label>{{room.membersNumb}}</label>
+                                    
+                                   </p>
+                                   
+                                    <p class="alignement-centre">
+                                        {% if room.controller!=user.username %}
+                                            <a class='a-link' href="/saberroom/{{room.name}}/viewer" title="Rejoindre comme afficher"><span class="glyphicon glyphicon-log-in"></span> </a> 
+                                        {% endif %}
+                                        
+                                        {% if ((room.control==false or room.controller==user.username)) %}
+                                           <a class='a-link' href="/saberroom/{{room.name}}/controller" title="Rejoindre comme Controleur" ><span class="glyphicon glyphicon-phone"></span> </a>
+                                        {% endif %}
+                                          
+                                        <a href="#" title="Voir la liste des membres" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-list"></span></a>
+                                    </p>
+                                    <!-- Insertion du popup ! composant modal de bootstrap -->
+                                    <div id="myModal" class="modal fade" role="dialog">
+                                      <div class="modal-dialog">
+                    
+                                        <!-- Contenu du Modal -->
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                            <h4 class="modal-title">Liste des membres </h4>
+                                          </div>
+                                          <div class="modal-body">
+                                              {% for membre in room.members %} <!-- for membre in room.members -->
+                                                <p>{{membre}}</p> 
+                                              {% endfor %}
+                                          </div>
+                                          <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                          </div>
+                                        </div>
+                                    
+                                      </div>
+                                    </div> 
+                                    <!-- fin insertion du composant modal -->
+                               </div>
+                            </div>
+                            
+                          
+                            {% endfor %} 
+                        
+                            <!-- LA PAGINATION -->
+                            <div class="text-center">
+                              <ul id="pagination-content" class="text-center pagination pagination-lg">
+                                    {% set n = totalPages %}
+                                    {% if totalPages == 0 %}
+                                        {% set n = 1 %}
+                                    {% endif%}
+                                    {% for i in 1..n %}
+                                        <li {% if i == currentPage %} class='active' {% endif %} >
+                                            <a class='page-link' href="/roomlist/page/{{i}}">{{i}}</a>
+                                        </li> 
+                                    {% endfor %}
+                              </ul>
+                            </div>
+                            
+                        </div>
+    
+                    </div>
+                    <div class="tab-pane" id="tab2">
+                        <form id='room-form' class="col-md-8 col-md-offset-2" style="margin-top : 10px;" role="form" action="/addroom" method="POST">
+                            <!-- token cscrf -->
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                            <fieldset>
+                                <!-- Saisie de l'identifiant du room -->
+                                <div class="form-group row">
+                                    <div class="col-md-12">
+                                      <input id="roomid" name="roomid" placeholder="nom du room" class="form-control input-md" type="text">
+                                      <span class="help-block">(Ne rien saisir si vous voulez que l'identifiant soit généré automatiquement par l'application)</span>  
+                                    </div>
+                                </div>
+                                    
+                                <!-- choix du profil : afficheur ou controleur -->
+                                <div class="form-group row">
+                                  <label class="col-md-12 control-label" for="profil">Profil : </label>
+                                  <div class="col-md-12">
+                                    <select id="profile" name="profile" class="form-control">
+                                      <option value="viewer">Afficheur</option>
+                                      <option value="controller">Controleur</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <!-- Boutton de validation -->
+                                <div class="form-group row">
+                                  <div class="col-md-12">
+                                    <button id="room-create-submit" type="submit" name="valider" class="btn btn-primary pull-right">Valider</button>
+                                  </div>
+                                </div>
+                            </fieldset>
+                        </form>          
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+

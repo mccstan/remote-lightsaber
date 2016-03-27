@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- encodage utf-8 pour l'affichage-->
+        <meta charset="utf-8" /> 
+        <!-- nécessaire surtout pour les appareil mobile, permet d'ocuper tout l'écran avec un niveau de zoom 1 -->
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <!-- definition du titre avec insertion d'n block twig qui permettra à chaque template d'attapter le titre-->
+        <title>{% block titre %}{% endblock %}RLS</title>
+        
+        <!-- inclusion de la bibliothèque bootstrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-1.13.0.css">
+        
+        <!-- inclusion de la feuille de style crée par nous  -->
+        <link rel="stylesheet" href="/public/css/lightsaberstyle.css">
+        
+        <!-- Platform for Privacy Preferences P3P  -->
+        <link rel="P3Pv1" href="/P3P/PolicyReferences.xml">
+        
+        <link rel="shortcut icon" href="/public/imgages/favicon.ico" />
+        
+        
+    </head>
+    <body>
+        <!-- obligé en bootstrap 3.x. toute les page doivent être dans un contenaire -->
+        <div class="container well col-md-8 col-md-offset-2 marge-haut-null padd-haut-null">
+            
+            <!-- Entête, Bannière -->
+            <header class="row well marge-haut-null padd-haut-null">
+                <div class="alignement-centre" >
+                     <img src="/public/images/banniere.png" class="affichage-ligne-block" alt="Bannière LightSaber">
+                </div>
+            </header>
+            <!-- Ceci est le block que chaque template remplira !-->
+             {% block body %}  {% endblock %}
+            
+            <!-- Ceci est le pied de page !-->
+            <section class="row alignement-centre" id="pied-page">
+                <span>Tous droits réservés</span>
+            </section>
+        
+        </div> <!-- fin du container !!  -->
+        
+        <!-- Inclusion des bibliothèteque jquery et js de bootstrap  -->
+        <script> var profile= '{{user.profile}}';</script>
+        
+        <!-- Scripts pour bootstrap -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        
+        <!-- Integration de socket.io -->
+        <script src="/socket.io/socket.io.js"></script>
+        
+        <!--Ajout des script de l'interface graphique -->
+        <script src="/public/js/three.min.js"></script>
+		<script src="/public/js/Animation.js"></script>
+		<script src="/public/js/AnimationHandler.js"></script>
+		<script src="/public/js/KeyFrameAnimation.js"></script>
+		<script src="/public/js/ColladaLoader.js"></script>
+		<script src="/public/js/Detector.js"></script>
+		<script src="/public/js/DeviceOrientationControls.js"></script>
+		
+		<script src="https://code.jquery.com/qunit/qunit-1.13.0.js"></script>
+		<script src="/public/js/jquery.twbsPagination.min.js"></script>
+        <script src="/public/js/main.js"></script>
+		
+		
+    	
+        {% block script %} 
+            
+        {% endblock %}
+    </body>
+</html>

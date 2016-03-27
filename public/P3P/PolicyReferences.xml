@@ -1,0 +1,11 @@
+<META xmlns="http://www.w3.org/2000/12/P3Pv1">
+<POLICY-REFERENCES>
+    <POLICY-REF about="/P3P/PolicyReferences.xml">
+        <COOKIE-INCLUDE
+            name="*"
+            value="*"
+            domain="*"
+            path="*"/>
+    </POLICY-REF>
+</POLICY-REFERENCES>
+</META>

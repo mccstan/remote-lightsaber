@@ -1,0 +1,39 @@
+<!-- herité du template layout.twig -->
+{% extends 'layout.twig' %}
+<!-- Invoquer le block titre (dans le template ) afin de le personaliser ! -->
+{% block titre %} {{ parent() }}controlleur - {% endblock %}
+<!-- Invoquer le block body (dans le template) pour y mettre le corps de la pqge-->
+{% block body %}
+
+    <section class="row" style="margin-top: 10px">
+        
+         <div id="barre-utilisateur" class="col-md-12"> 
+            <label>Utilisateur : </label>
+            <!-- Accéder au username donné par le server en mettant  -->
+            <span>{{user.username}}</span>
+            <script>
+                var username = '{{user.username}}';
+                var roomname = '{{roomname}}';
+                var profile = '{{user.profile}}';
+            </script>
+            <a href="/logout" title="Déconnexion"><span class="glyphicon glyphicon-off"></span></a>
+        </div>
+        
+        <div class="col-md-12" id="principal"> 
+        
+        </div>
+        
+    </section>
+    
+{% endblock %}
+
+{% block script %}
+    <script>
+    //Emmission d'évènement lors del'accès à une room.
+    $( document ).ready(function() {
+		console.log('access-event Client sent');
+    	socket.emit('access-event', username, roomname, profile);
+    });
+	</script>
+
+{% endblock %}
