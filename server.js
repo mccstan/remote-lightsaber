@@ -57,11 +57,11 @@ app.disable('x-powered-by');
  * 
  */
 app.use(lusca({
-    csp: {//White liste
+    /*csp: {//White liste
          policy: {
           'default-src': '\'self\' \'unsafe-inline\' https://maxcdn.bootstrapcdn.com/ https://code.jquery.com/ https://ajax.googleapis.com/ wss://aws-remote-lightsaber-mccstan.c9users.io/socket.io/',
         }
-    },
+    },*/
     xframe: 'SAMEORIGIN', //Protection contre le clickjacking
     //p3p: 'ABCDEF',
     hsts: {maxAge: 31536000, includeSubDomains: true, preload: true}, //Communications via HTTPS
@@ -124,7 +124,6 @@ function reduceRooms(rooms, page){
  */
 var connectedUsers = {};
 var lightSaberRooms = {};
-var Cstate = {};
 
 /**
  * ROUTES
@@ -132,7 +131,7 @@ var Cstate = {};
 */
 
 
-//ADDROOM
+// /addroom Route de gestion de la création de nouvelles rooms dans l'application
 app.post('/addroom', parseForm, csrfProtection, function(req, res){
    if(req.session.user == undefined){
       res.redirect('/');
@@ -159,7 +158,8 @@ app.post('/addroom', parseForm, csrfProtection, function(req, res){
          creator : req.session.user.username,
          members : members,
          membersNumb : Object.keys(members).length,
-         control : control
+         control : control, 
+         roomControlled : false
       };
       
       lightSaberRooms[id].membersNumb = function(){
@@ -177,8 +177,38 @@ app.post('/addroom', parseForm, csrfProtection, function(req, res){
 });
 
 
+// /deleteroom  Suppression d'une room
+app.get('/deleteroom/:roomid', function(req, res) {
+    if(req.session.user == undefined){
+      res.redirect('/');
+   }
+   else{
+      if(lightSaberRooms[req.params.roomid].creator == req.session.user.username){
+         delete lightSaberRooms[req.params.roomid];
+      }
+      res.redirect('/roomlist/page/1');
+      
+   }
+});
 
-// saberroom/:roomid
+// ∕leaveroom Route pour quitter une room.
+app.get('/leaveroom/:roomid', function(req, res) {
+   if(req.session.user == undefined){
+      res.redirect('/');
+   }
+   else{// Suppression du user de la room
+      delete lightSaberRooms[req.params.roomid].members[req.session.user.username];
+      if(lightSaberRooms[req.params.roomid].controller == req.session.user.username){
+         lightSaberRooms[req.params.roomid].roomControlled = false;
+         lightSaberRooms[req.params.roomid].controller = 'Non défini';
+      }
+      res.redirect('/roomlist/page/1');
+   }
+});
+
+
+
+// saberroom/:roomid  Route de gestion d'accès à une room
 app.get('/saberroom/:roomid/:option', function(req, res) {
    if(req.session.user == undefined){
       res.redirect('/');
@@ -191,23 +221,17 @@ app.get('/saberroom/:roomid/:option', function(req, res) {
       if(lightSaberRooms[roomid] !== undefined){
          if(lightSaberRooms[roomid].controller == username){
             profile = 'controller' ;
+            lightSaberRooms[roomid].roomControlled = true;
          }
          else{
             lightSaberRooms[roomid].members[username] = username;
             profile = 'viewer' ;
             if(option == 'controller'){
                profile = 'controller' ;
+               lightSaberRooms[roomid].controller = username;
+               lightSaberRooms[roomid].roomControlled = true;
             }
          }
-         
-         //console.log("CR :", Cstate.currentRoom, " - CU :",Cstate.currentUsername, " - CP :",Cstate.currentProfile )
-         /*
-         io.on('connection', function(socket){
-            //socket.on('access-event', function(controller){
-               socket.emit('new-controller-event', username);
-            //});
-            
-         });*/
          
          req.session.user['profile'] = profile ;
          res.render('saberroom.twig', {
@@ -223,7 +247,7 @@ app.get('/saberroom/:roomid/:option', function(req, res) {
 
 
 
-//LOGIN
+// /login Route de gestion de la connection d'un utilisateur su l'application avec protection CSRF
 app.post('/login', parseForm, csrfProtection, function(req, res){
    if(req.session.user == undefined){ // Pas de session active
       if(connectedUsers[req.body.identifiant] == undefined){ // Identifiant non defini
@@ -328,15 +352,16 @@ app.get('/', csrfProtection, function(req, res){
 
 /**
  * 
- * Events
+ * Communications socket.io
+ * Gestion des interactions par socket.io
  */
+ 
 //Evenements de connection
 io.on('connection', function(socket){
   //Evenements de logout
   var username;
   socket.on('disconnect', function(){
     if(username !== undefined){
-        console.log('User disconnected : '+username);
         var serviceMessage = {
           text : 'User "'+username+'" disconnected',
           type : 'user-logout'
@@ -389,25 +414,61 @@ io.on('connection', function(socket){
   
   
   //Event transmission de coord
-  socket.on('orientationemission', function(coordonnee, controller) {
-     //jaugeCoord(coord);
-     //console.log('Le salaud');
+  socket.on('orientationemission', function(coordonnee, controller, roomid) {
+     //Code Broadcast
+     
      socket.broadcast.emit('orientationreception', coordonnee, controller);
+     
+     //Passage en mode multicast
+     /*
+     socket.broadcast.to(roomid).emit('orientationreception', coordonnee, controller);
+     */
   });
   
   socket.on('access-event', function(Username, roomname, profile){
+     // Code broadcast
+     
      console.log('access-event Server received');
      console.log("PRO :", profile);
      if(profile == 'controller'){
-        socket.broadcast.emit('new-controller-event', Username, roomname);
-        console.log('new-controller-event sent');
+        socket.broadcast.emit('new-device-event', Username, roomname, profile);
+        console.log('new-device-event sent');
      }
      
+     //Passage en mode multicast
+     /*
+     console.log('access-event Server received');
+     console.log("PROFILE :", profile);
+     socket.join(roomname);
+     if(profile == 'controller'){
+        socket.broadcast.to(roomname).emit('new-controller-event', Username, roomname);
+        console.log('new-controller-event sent');
+     }
+     */
      
   });
   
-  socket.on('touchEvent', function(touchPosition, Cusername) {
+  socket.on('touchEvent', function(touchPosition, Cusername, roomid) {
+      //Broadcast mode
+      /*
       socket.broadcast.emit('touchreception', touchPosition, Cusername);
+      */
+      //multicast mode
+      
+      socket.broadcast.to(roomid).emit('touchreception', touchPosition, Cusername, roomid);
+      
+  });
+  
+  
+   socket.on('controllerquit', function(username, roomid) {
+      //Broadcast mode
+      /*
+      socket.broadcast.emit('depart-controller-event', username);
+      */
+      //multicast mode
+      
+      socket.broadcast.to(roomid).emit('depart-controller-event', username, roomid)
+      
   });
   
   

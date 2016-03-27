@@ -25,13 +25,18 @@
                 <div id="rooms-list" class="tab-content">
                     <div class="tab-pane active" id="tab1">
                         <div id="rooms-div">
-                      
+                     
+                             {% if rooms|length == 0 %}
+                                <div id="roomsvide" class="alignement-centre"><span class="glyphicon glyphicon-exclamation-sign"></span>Aucun room n'est créée pour le moment</div>
+                            {% endif %}                     
                         {% for room in rooms %}
+                        
+                        
                         
                            <!-- composant panel de bootstrap -->
                             <div id="panel-room" class="panel {% if room.active==true %}panel-success {% else %}panel-primary{% endif %} roms-inline-block" > 
       
-                               <div class="panel-heading text-center text-uppercase" > {{room.name}} </div>
+                               <div class="panel-heading text-center text-uppercase" > {{room.name}}</div>
                                <div class="panel-body">    
                                    <p>
                                        <span class="glyphicon glyphicon-phone" title="controleur"></span>
@@ -55,6 +60,10 @@
                                         {% endif %}
                                           
                                         <a href="#" title="Voir la liste des membres" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-list"></span></a>
+                                    
+                                         {% if room.creator==user.username %}
+                                        <a href="/deleteroom/{{room.name}}" title="supprimer la room"><span class="glyphicon glyphicon-remove"></span></a>
+                                        {% endif %}
                                     </p>
                                     <!-- Insertion du popup ! composant modal de bootstrap -->
                                     <div id="myModal" class="modal fade" role="dialog">
@@ -86,6 +95,8 @@
                             {% endfor %} 
                         
                             <!-- LA PAGINATION -->
+                            {% if totalPages >1 %}
+                                     
                             <div class="text-center">
                               <ul id="pagination-content" class="text-center pagination pagination-lg">
                                     {% set n = totalPages %}
@@ -99,6 +110,7 @@
                                     {% endfor %}
                               </ul>
                             </div>
+                            {% endif %}
                             
                         </div>
     

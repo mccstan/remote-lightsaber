@@ -32,10 +32,10 @@
     //Emmission d'évènement lors del'accès à une room.
     $( document ).ready(function() {
         console.log('access-event launched');
-        if(profile == 'controller'){
+        //if(profile == 'controller'){
             console.log('access-event Client sent');
     	    socket.emit('access-event', username, roomname, profile);
-        }
+        //}
 		
     });
 	</script>
