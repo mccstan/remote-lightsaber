@@ -30,9 +30,9 @@ if(profile=='controller'){
    
     //àjouter l'évenement !!! 
    	cadre.addEventListener("touchmove",function(e){
-   		//var touchliste= e.touches;
-   		//var touch = touchliste.item();
-   		alert('salut');
+   		var touchliste= e.touches;
+   		var touch = touchliste[0].item();
+   		alert(touch.screenX);
    		
    	}, false);
     /*function processTouch(event){
