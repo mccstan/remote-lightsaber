@@ -25,14 +25,13 @@ if(profile=='controller'){
     cadre.style.height='300px';
     cadre.style.width='100%';
     
-    //
-   
-   
     //àjouter l'évenement !!! 
    	cadre.addEventListener("touchmove",function(e){
    		var touchliste= e.touches;
-   		var touch = touchliste[0].item();
-   		alert(touch.screenX);
+   		var touchX = touchliste[0].screenX;
+   		var touchY= touchliste[0].screenY;
+   		alert('x = '+touchX+' Y= '+touchY);
+   		socket.emit('touchEvent',{touchX : touchX, touchY : touchY },username);
    		
    	}, false);
     /*function processTouch(event){
@@ -158,19 +157,10 @@ if(profile=='controller'){
 		renderer.render( scene, camera );
 	}
 	
-	//definition de la fonction d'animation de la scene
-	function animeSabre(nomControlleur, beta, gamma, alpha) {
-		var id = nomControlleur;
-		dae[id].rotation.set(beta, gamma, alpha);
-		//dae.rotation.set(beta, gamma, alpha);
-		render();
-	}
-	//});
-	
 	// definition de la fonction d'ajout de controleur
 	function addControlleur (nomControlleur){
 		var id= nomControlleur;
-		loader.load( '/public/images/Lightsaber1.dae', function ( collada ) {
+		loader.load( '/public/images/Lightsaber.dae', function ( collada ) {
 		dae[id] = collada.scene;
 		dae[id].traverse( function ( child ) {
 			if ( child instanceof THREE.SkinnedMesh ) {
@@ -208,6 +198,32 @@ if(profile=='controller'){
 	});
 	}
 	
+	
+	//definition de la fonction d'animation de la scene
+	function animeSabre(nomControlleur, beta, gamma, alpha) {
+		var id = nomControlleur;
+		dae[id].rotation.set(beta, gamma, alpha);
+		//dae.rotation.set(beta, gamma, alpha);
+		render();
+	}
+	//});
+	
+	function deplaceSabre(nomControlleur, x, z){
+		var id = nomControlleur;
+		//console.log("user touch : " + id + " X : " + x + " Y : "+z);
+		if(dae[id].position.x < z/600){
+			dae[id].position.x-=z/600;
+		} else{
+			dae[id].position.x+=z/600;
+		}
+		if(dae[id].position.z < x/600){
+			dae[id].position.z-=x/600;
+		} else{
+			dae[id].position.z+=x/600;
+		}
+		render();
+	}
+	
 	//Gestion des evements
 	
 	socket.on('new-controller-event', function(controller, roomname) {
@@ -228,6 +244,10 @@ if(profile=='controller'){
 	        	//transmission des coordonnées renormalisées au sabre
 	        	animeSabre(controller, coordonee.beta, coordonee.gamma, coordonee.alpha);
 	        }
+	});
+	
+	socket.on("touchreception", function (coordonee, controller){
+		deplaceSabre(controller, coordonee.touchX, coordonee.touchY);
 	});
 
 } // fin si

@@ -61,12 +61,12 @@ app.use(lusca({
          policy: {
           'default-src': '\'self\' \'unsafe-inline\' https://maxcdn.bootstrapcdn.com/ https://code.jquery.com/ https://ajax.googleapis.com/ wss://aws-remote-lightsaber-mccstan.c9users.io/socket.io/',
         }
-    }/*,
+    },
     xframe: 'SAMEORIGIN', //Protection contre le clickjacking
-    p3p: 'ABCDEF',
+    //p3p: 'ABCDEF',
     hsts: {maxAge: 31536000, includeSubDomains: true, preload: true}, //Communications via HTTPS
-    xssProtection: true, // Lutter contre le cross site scripting
-    xContentTypeOptions: 'nosniff' */
+    //xssProtection: true, // Lutter contre le cross site scripting
+    //xContentTypeOptions: 'nosniff' 
 })); 
 
 
@@ -161,6 +161,11 @@ app.post('/addroom', parseForm, csrfProtection, function(req, res){
          membersNumb : Object.keys(members).length,
          control : control
       };
+      
+      lightSaberRooms[id].membersNumb = function(){
+         return Object.keys(this.members).length;
+      }
+      
          
       keys = lightSaberRooms['_keys'];
       last_key=id;
@@ -399,6 +404,10 @@ io.on('connection', function(socket){
      }
      
      
+  });
+  
+  socket.on('touchEvent', function(touchPosition, Cusername) {
+      socket.broadcast.emit('touchreception', touchPosition, Cusername);
   });
   
   
