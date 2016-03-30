@@ -59,7 +59,7 @@ app.disable('x-powered-by');
 app.use(lusca({
     csp: {//White liste
          policy: {
-          "default-src": " 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ wss://lightsaber-awsuvsq.rhcloud.com//socket.io/",
+          "default-src": " 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ wss://remote-light-saber.herokuapp.com//socket.io/",
         }
     },
     hsts: {maxAge: 31536000, includeSubDomains: true, preload: true}, //Communications via HTTPS
