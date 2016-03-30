@@ -9,6 +9,7 @@ var cookieParser=require('cookie-parser');
 var twig=require("twig");
 var session=require("express-session");
 var csrf = require('csurf'); // Protection CSCRF pour sassurer que les données nous arrivant proviennent bien des formulaire que nous avons envoyés !
+var csp = require('helmet-csp');
 var helmet = require('helmet'); // Protection CSP
 var lusca = require('lusca'); // Protection LUSCA
 var app=express();
@@ -56,10 +57,18 @@ app.disable('x-powered-by');
  * Protection diverses
  * 
  */
+ app.use((req, res, next) => {
+  let wsSrc = (req.protocol === 'http' ? 'ws://' : 'wss://') + req.get('host');
+
+  csp({
+    connectSrc: ['\'self\'', wsSrc],
+  })(req, res, next);
+});
+
 app.use(lusca({
     csp: {//White liste
          policy: {
-          "default-src": " 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ wss://remote-light-saber.herokuapp.com//socket.io/",
+          "default-src": " 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/",
         }
     },
     hsts: {maxAge: 31536000, includeSubDomains: true, preload: true}, //Communications via HTTPS
