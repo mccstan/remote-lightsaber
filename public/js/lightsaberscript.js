@@ -2,7 +2,7 @@
 //le code jquery pour le controle de saisie dans le formulaire !!
 $(function(){
   
-    $("form").on("submit", function() { 
+    $("#ok").on("click", function(event) {
         //interdire des identifiant de moin de 4 caractères ! 
         if($("#identifiant").val().length < 4) {
             $("#div-submit").addClass("has-error");
@@ -15,12 +15,16 @@ $(function(){
             $("#alert").show("slow").delay(4000).hide("slow");
             return false;
         }
-        
-        /* $.post('/login',{_csrf : } ,function(result) {
-            alert(result);
-          });   */
-        
-            });
+  
+    });
+    
+    
+    if(error != undefined && error == true){
+        $("#div-submit").addClass("has-error");
+        $("#alert p").replaceWith("<p>Cet identifiant existe déjà </p>");
+        $("#alert").show("slow").delay(4000).hide("slow");
+        error = false;
+    }
     
     
 });

@@ -62,7 +62,6 @@ app.use(lusca({
           "default-src": " 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ wss://aws-remote-lightsaber-mccstan.c9users.io/socket.io/",
         }
     },
-    xframe: 'SAMEORIGIN', //Protection contre le clickjacking
     hsts: {maxAge: 31536000, includeSubDomains: true, preload: true}, //Communications via HTTPS
 })); 
 
@@ -127,6 +126,7 @@ function getRandomArbitrary(min, max) {
 var connectedUsers = {};
 var lightSaberRooms = {};
 var saberControllers = {};
+var error=false;
 /**
  * ROUTES
  * 
@@ -253,7 +253,7 @@ app.get('/saberroom/:roomid/:option', function(req, res) {
 app.post('/login', parseForm, csrfProtection, function(req, res){
    if(req.session.user == undefined){ // Pas de session active
       if(connectedUsers[req.body.identifiant] == undefined){ // Identifiant non defini
-         
+         error = false;
          //Generer identifiant si envoi du user vide
          var id = 'User' + getRandomArbitrary(1999, 5000096) ; ;
          if(req.body.identifiant.length >= 1)
@@ -265,18 +265,15 @@ app.post('/login', parseForm, csrfProtection, function(req, res){
          };
          
          //Ajout de l'utilisateur dans la liste
-         connectedUsers[id] = req.session.user;
+         connectedUsers[id] = req.session.user; 
          
          //Affichage tu tableau de bord user
          res.redirect("/roomlist");
       }
       else{ //Identifiant deja existant
          //On affiche la page de connection avec erreur
-         res.render('login.twig', {
-            error : true,
-            errorMessage : "Identifiant déjà utilisé",
-            disconnect : false
-         });
+         error=true;
+         res.redirect("/");
       }
       
    }
@@ -340,7 +337,8 @@ app.get('/roomlist/page/:num', csrfProtection, function(req, res){
 app.get('/', csrfProtection, function(req, res){
    if(req.session.user == undefined){
       res.render('login.twig', {
-         csrfToken: req.csrfToken()
+         csrfToken: req.csrfToken(),
+         error : error
       }); 
    }
    else

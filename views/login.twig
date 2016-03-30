@@ -11,11 +11,15 @@
                     <div class="col-md-6" id="manette">
                         <img src="public/images/fond1.png" alt="fond1">
                     </div>
+                    <script>
+                      var error = {{error}};
+                    </script>
+                    
                     
                     <!-- Formulaire de connexion -->
-                    <form id="form" class="form-inline col-md-6" id="form-connexion" action="/login" method="post">
+                    <form id="form" class="form-inline col-md-6" id="form-connexion" method="post"  action="/login" >
                             <!-- token cscrf -->
-                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                            <input id="chanmpcache" type="hidden" name="_csrf" value="{{csrfToken}}">
                             <span id="connexion-label">Connexion</span>
                             <!-- Saisie de l'identifiant -->
                             <div class="form-group row">
@@ -26,8 +30,8 @@
 
                              <!-- Boutton de validation -->
                             <div id="div-submit" class="form-group row">
-                              <div class="col-md-12" style="text-align: rig">
-                                <button type="submit" id="valider" name="Connexion" class="btn btn-primary"><span class="glyphicon glyphicon-user"></span> Connexion</button>
+                              <div class="col-md-12" style="text-align: right">
+                                <button id="ok" type="submit" id="valider" name="Connexion" class="btn btn-primary"><span class="glyphicon glyphicon-user"></span> Connexion</button>
                               </div>
                             </div>
                             <!-- Message à faire apparaitre en cas d'erreur de saisie !  -->
