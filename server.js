@@ -8,7 +8,7 @@ var bodyParser=require('body-parser');
 var cookieParser=require('cookie-parser');
 var twig=require("twig");
 var session=require("express-session");
-var csrf = require('csurf'); // Protection CSCRF
+var csrf = require('csurf'); // Protection CSCRF pour sassurer que les données nous arrivant proviennent bien des formulaire que nous avons envoyés !
 var helmet = require('helmet'); // Protection CSP
 var lusca = require('lusca'); // Protection LUSCA
 var app=express();
@@ -57,16 +57,13 @@ app.disable('x-powered-by');
  * 
  */
 app.use(lusca({
-    /*csp: {//White liste
+    csp: {//White liste
          policy: {
-          'default-src': '\'self\' \'unsafe-inline\' https://maxcdn.bootstrapcdn.com/ https://code.jquery.com/ https://ajax.googleapis.com/ wss://aws-remote-lightsaber-mccstan.c9users.io/socket.io/',
+          "default-src": " 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ wss://aws-remote-lightsaber-mccstan.c9users.io/socket.io/",
         }
-    },*/
+    },
     xframe: 'SAMEORIGIN', //Protection contre le clickjacking
-    //p3p: 'ABCDEF',
     hsts: {maxAge: 31536000, includeSubDomains: true, preload: true}, //Communications via HTTPS
-    //xssProtection: true, // Lutter contre le cross site scripting
-    //xContentTypeOptions: 'nosniff' 
 })); 
 
 
@@ -90,7 +87,7 @@ app.set('views', 'views');
 var last_key;
 var keys;
 
-
+//Fonction de pagination
 function reduceRooms(rooms, page){
    var number=4;
    var start = number * (page - 1) + 1;
@@ -116,6 +113,11 @@ function reduceRooms(rooms, page){
 }
 
 
+//Fonction random
+function getRandomArbitrary(min, max) {
+  return Math.ceil(Math.random() * (max - min) + min);
+}
+
 
 
 /**
@@ -124,7 +126,7 @@ function reduceRooms(rooms, page){
  */
 var connectedUsers = {};
 var lightSaberRooms = {};
-
+var saberControllers = {};
 /**
  * ROUTES
  * 
@@ -137,7 +139,7 @@ app.post('/addroom', parseForm, csrfProtection, function(req, res){
       res.redirect('/');
    }
    else{
-      var id = "GeneratedRoomID" ;
+      var id = 'Room' + getRandomArbitrary(1999, 5000096) ;
       if(req.body.roomid.length >= 1){
          id = req.body.roomid;
       }
@@ -253,7 +255,7 @@ app.post('/login', parseForm, csrfProtection, function(req, res){
       if(connectedUsers[req.body.identifiant] == undefined){ // Identifiant non defini
          
          //Generer identifiant si envoi du user vide
-         var id = "GeneratedUsername" ;
+         var id = 'User' + getRandomArbitrary(1999, 5000096) ; ;
          if(req.body.identifiant.length >= 1)
             id = req.body.identifiant;
          
@@ -416,35 +418,45 @@ io.on('connection', function(socket){
   //Event transmission de coord
   socket.on('orientationemission', function(coordonnee, controller, roomid) {
      //Code Broadcast
-     
-     socket.broadcast.emit('orientationreception', coordonnee, controller);
-     
-     //Passage en mode multicast
      /*
-     socket.broadcast.to(roomid).emit('orientationreception', coordonnee, controller);
+     socket.broadcast.emit('orientationreception', coordonnee, controller);
      */
+     //Passage en mode multicast
+     
+     socket.broadcast.to(roomid).emit('orientationreception', coordonnee, controller);
+     
   });
   
   socket.on('access-event', function(Username, roomname, profile){
      // Code broadcast
-     
+     /*
      console.log('access-event Server received');
      console.log("PRO :", profile);
      if(profile == 'controller'){
         socket.broadcast.emit('new-device-event', Username, roomname, profile);
         console.log('new-device-event sent');
      }
-     
+     */
      //Passage en mode multicast
-     /*
+     
      console.log('access-event Server received');
      console.log("PROFILE :", profile);
      socket.join(roomname);
      if(profile == 'controller'){
+        if (saberControllers[roomname] == undefined){
+         saberControllers[roomname] = {};
+        }
+        saberControllers[roomname][Username] = Username ;
+        console.log(saberControllers);
         socket.broadcast.to(roomname).emit('new-controller-event', Username, roomname);
-        console.log('new-controller-event sent');
+        console.log('new-controller-event server sent');
      }
-     */
+     else{
+        //socket.broadcast.to(roomname).emit('new-viewer-event', saberControllers[roomname], roomname);
+        io.sockets.in(roomname).emit('new-viewer-event', saberControllers[roomname], roomname);
+        console.log('new-viewer-event server sent');
+     }
+     
      
   });
   
@@ -454,7 +466,7 @@ io.on('connection', function(socket){
       socket.broadcast.emit('touchreception', touchPosition, Cusername);
       */
       //multicast mode
-      
+      console.log('touchreception sever received');
       socket.broadcast.to(roomid).emit('touchreception', touchPosition, Cusername, roomid);
       
   });
@@ -466,9 +478,9 @@ io.on('connection', function(socket){
       socket.broadcast.emit('depart-controller-event', username);
       */
       //multicast mode
-      
+      console.log('touchreception server received');
       socket.broadcast.to(roomid).emit('depart-controller-event', username, roomid)
-      
+      socket.leave(roomid);
   });
   
   

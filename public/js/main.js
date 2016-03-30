@@ -16,8 +16,15 @@ function process(event) {
     socket.emit("orientationemission", {alpha : alpha, beta : beta, gamma : gamma }, controller, roomid);
 }
 
+if (typeof profile == 'undefined') {
+	var userProfile = undefined;
+}
+else{
+	var userProfile = profile;
+}
+
 //emmission des donnnées par le controller
-if(profile=='controller'){
+if(userProfile=='controller'){
 	
 	var q = document.createElement("div");
 	q.innerHTML="<a href=\"/leaveroom/"+roomname+"\">Quitter la room</a>";
@@ -27,7 +34,6 @@ if(profile=='controller'){
 	q.addEventListener('click',function(e){
 		
 		socket.emit("controllerquit",username);
-		alert("le socket a emit un controllerquit !! ");
 		
 	});
     
@@ -45,7 +51,7 @@ if(profile=='controller'){
    		var touchX = touchliste[0].screenX;
    		var touchY= touchliste[0].screenY;
    		var roomid = roomname;
-   		alert('x = '+touchX+' Y= '+touchY);
+   		//alert('x = '+touchX+' Y= '+touchY);
    		socket.emit('touchEvent',{touchX : touchX, touchY : touchY }, username, roomid);
    		
    	}, false);
@@ -56,16 +62,22 @@ if(profile=='controller'){
     
     
     
-} else if (profile=='viewer'){
+} else if (userProfile=='viewer'){
 	
-	$.getScript("/public/js/printerlightsaber.js", function(){
-		alert("Chargement du script de l'afficheur effectué avec succès ! ");
-	});
+	//CHARGEMENT DU SCRIPT DE LA SCENE
+	//CODE POUR IMPORTATION DU JAVASCRIPT
+    var js_script = document.createElement('script');
+	js_script.type = "text/javascript";
+	js_script.src = "/public/js/printerlightsaber.js";
+	js_script.async = true;
+	document.getElementsByTagName('head')[0].appendChild(js_script);
+	
 	
 	var quitter = document.createElement("div");
 	quitter.innerHTML="<a href=\"/leaveroom/"+roomname+"\">Quitter la room</a>";
-	quitter.style.textAlign="center";
-	quitter.style.border="2px solid rgb(227,227,227)";
+	//quitter.style.textAlign="center";
+	//quitter.style.border="2px solid rgb(227,227,227)";
+	quitter.className = "btn btn-link btn-lg btn-block";
 	document.getElementById('principal').appendChild(quitter);
 	
 

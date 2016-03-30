@@ -16,5 +16,11 @@ $(function(){
             return false;
         }
         
-    });
+        /* $.post('/login',{_csrf : } ,function(result) {
+            alert(result);
+          });   */
+        
+            });
+    
+    
 });

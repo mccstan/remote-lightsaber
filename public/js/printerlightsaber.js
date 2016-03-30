@@ -79,8 +79,16 @@
 			//Prédéfinition des positions des sabres
 			initialisePosition ();
 			render();
+			//console.log("EVENMENT SCÈNE CHARGÉ ");
+			
 	}
 	
+	//definition de la fonction de chargement des controlleurs deja existant dans la room
+	// function chargeControlleursExistant(){
+	// 	for(controlleur in saberControllers){
+	// 		if(dae[controlleur])
+	// 	}
+	// }
 	//fonction de prédefinition des positions des sabres
 	function initialisePosition (){
 			daePoistion[0] = new THREE.Vector3(0,-5,0);
@@ -117,40 +125,40 @@
 		var id= nomControlleur;
 		if(dae[id] == undefined){
 			loader.load( '/public/images/Lightsaber.dae', function ( collada ) {
-			dae[id] = collada.scene;
-			dae[id].traverse( function ( child ) {
-				if ( child instanceof THREE.SkinnedMesh ) {
-					var animation = new THREE.Animation( child, child.geometry.animation );
-					animation.play();
-				}
-			});
-		                
-		    //definition de l'echelle de la scene collada
-			dae[id].scale.x = 0.06;
-			dae[id].scale.y = dae[id].scale.z = 0.06;
-			//definition du positionnement
-			//dae[id].position.set(daePoistion[position]);
-			dae[id].position.x = daePoistion[position].x ;
-			dae[id].position.y = daePoistion[position].y ;
-			dae[id].position.z = daePoistion[position].z ;
-			
-			//dae[id].position.set(0,-0.5,0 );
-			//dae[id].rotation.set(daeRotation[position]);
-			dae[id].rotation.x = daeRotation[position].x ;
-			dae[id].rotation.y = daeRotation[position].y ;
-			dae[id].rotation.z = daeRotation[position].z ;
-			
-			//dae[id].rotation.set(-72, 0.50, 78.2);
-			position ++; if(position > 3) position = 0;
-			
-			//dae[id].rotation.set(0, 10, 0);
-			dae[id].updateMatrix();
-			// ajout de la scene du collada sur la scene de three
-			scene.add( dae[id] );
-			//animation de la scene
-			//animate();
-			colladaLoadedSet();
-			render();
+				dae[id] = collada.scene;
+				dae[id].traverse( function ( child ) {
+					if ( child instanceof THREE.SkinnedMesh ) {
+						var animation = new THREE.Animation( child, child.geometry.animation );
+						animation.play();
+					}
+				});
+			                
+		    	//definition de l'echelle de la scene collada
+				dae[id].scale.x = 0.06;
+				dae[id].scale.y = dae[id].scale.z = 0.06;
+				//definition du positionnement
+				//dae[id].position.set(daePoistion[position]);
+				dae[id].position.x = daePoistion[position].x ;
+				dae[id].position.y = daePoistion[position].y ;
+				dae[id].position.z = daePoistion[position].z ;
+				
+				//dae[id].position.set(0,-0.5,0 );
+				//dae[id].rotation.set(daeRotation[position]);
+				dae[id].rotation.x = daeRotation[position].x ;
+				dae[id].rotation.y = daeRotation[position].y ;
+				dae[id].rotation.z = daeRotation[position].z ;
+				
+				//dae[id].rotation.set(-72, 0.50, 78.2);
+				position ++; if(position > 3) position = 0;
+				
+				//dae[id].rotation.set(0, 10, 0);
+				dae[id].updateMatrix();
+				// ajout de la scene du collada sur la scene de three
+				scene.add( dae[id] );
+				//animation de la scene
+				//animate();
+				colladaLoadedSet();
+				render();
 			
 			});
 		}
@@ -176,7 +184,7 @@
 	//definition de la fonction de deplacement du sabre suivre l'evenement touch screem
 	function deplaceSabre(nomControlleur, x, y){
 		var id = nomControlleur;
-		console.log("user touch : " + id + " X : " + x + " Y : "+y);
+		//console.log("user touch : " + id + " X : " + x + " Y : "+y);
 		dae[id].position.x+=-1*(oldY-y)*3.14/180;
 		oldY=y;
 		dae[id].position.z+=-1*(x-oldX)*3.14/180;
@@ -187,33 +195,52 @@
 	
 	//Gestion des evements
 	//arrivée d'un nouveau controlleur
-	socket.on('new-device-event', function(controller, roomname, profile) {
-		//console.log("new-device-event" + profile );
-			addControlleur(controller);
+	socket.on('new-controller-event', function(controller, roomname, profile) {
+		//console.log("new-controller-event Client received" + profile );
+		addControlleur(controller);
 	});
 	// Qaund un contolleur quitte le jeu
 	socket.on('depart-controller-event', function(controller, roomname) {
-		console.log("new-controller-event");
+		//console.log("depart-controller-event client received");
 	    suppControlleur(controller);
 	    
 	});
 	
+	//Nouveau afficheur arrivé.
+	//var i=0;
+	socket.on('new-viewer-event', function(saberControllers, roomname) {
+		//console.log("new-viewer-event Client received");
+		//alert('viewer');
+		//console.log("EVENMENT Nouveau afficheur ");
+		if(saberControllers!=null){
+			    Object.keys(saberControllers).forEach(function(key){
+			    	if(dae[saberControllers[key]]==undefined){
+			    		addControlleur(saberControllers[key]);
+			    	}
+			    });
+			}
+	    
+	});
+	
+	
+	
 	socket.on("orientationreception", function (coordonee, controller){
 		//var id = controleur;
-	        console.log("Coordonnees: Beta="+coordonee.beta+ " Gamma="+coordonee.gamma+" Alpha="+coordonee.alpha);
-	        var id= coordonee;
-		        if(colladaLoaded == true){
-		        	
-		        	//Rénormalisation des coordonnées par rapport a la scene
-		        	coordonee.beta+=-2.25;
-		        	coordonee.gamma+=0.02;
-		        	coordonee.alpha+=-1.05;
-		        	//transmission des coordonnées renormalisées au sabre
-		        	animeSabre(controller, coordonee.beta, coordonee.gamma, coordonee.alpha);
-		        }
+        //console.log("Coordonnees: Beta="+coordonee.beta+ " Gamma="+coordonee.gamma+" Alpha="+coordonee.alpha);
+        var id= coordonee;
+        if(colladaLoaded == true){
+        	//Rénormalisation des coordonnées par rapport a la scene
+        	coordonee.beta+=-2.25;
+        	coordonee.gamma+=0.02;
+        	coordonee.alpha+=-1.05;
+        	//transmission des coordonnées renormalisées au sabre
+        	animeSabre(controller, coordonee.beta, coordonee.gamma, coordonee.alpha);
+        }
 			
 	});
 	
 	socket.on("touchreception", function (coordonee, controller){
-		deplaceSabre(controller, coordonee.touchX, coordonee.touchY);
+		if(colladaLoaded == true){
+			deplaceSabre(controller, coordonee.touchX, coordonee.touchY);
+		}
 	});

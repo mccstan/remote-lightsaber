@@ -109,7 +109,7 @@ header img {
 
 /* Background du site*/
 body{
-    background:url(/public/images/back.jpg) no-repeat center top scroll;
+    background:url(/public/images/back.jpg) repeat center top scroll;
     background-size: 100% auto;
     margin-top : 10px;
     
