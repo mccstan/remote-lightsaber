@@ -57,13 +57,7 @@ app.disable('x-powered-by');
  * Protection diverses
  * 
  */
- app.use((req, res, next) => {
-  let wsSrc = (req.protocol === 'http' ? 'ws://' : 'wss://') + req.get('host');
 
-  csp({
-    connectSrc: ['\'self\'', wsSrc],
-  })(req, res, next);
-});
 
 app.use(lusca({
     csp: {//White liste
@@ -74,6 +68,13 @@ app.use(lusca({
     hsts: {maxAge: 31536000, includeSubDomains: true, preload: true}, //Communications via HTTPS
 })); 
 
+app.use((req, res, next) => {
+  var wsSrc = (req.protocol == 'https' ? 'wss://' : 'ws://') + req.get('host') + '/socket.io/';
+
+  csp({
+    connectSrc: ['\'self\'', wsSrc],
+  })(req, res, next);
+});
 
 //Gestion d'erreur en cas de mauvaise transmission
 app.use(function (err, req, res, next) {
